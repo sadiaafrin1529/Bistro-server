@@ -37,11 +37,23 @@ async function run() {
       res.send(result)
 })
 
+    
+    
     app.post("/carts", async (req, res) => {
       const cartItem = req.body;
       const result = await cartsCollection.insertOne(cartItem);
        res.send(result)
     })
+
+const { ObjectId } = require("mongodb");
+ app.delete("/carts/:id", async (req, res) => {
+   const id = req.params.id;
+   const query = { _id: new ObjectId(id) };
+   const result = await cartsCollection.deleteOne(query);
+   res.send(result);
+ });
+
+
 
     app.get("/menu", async (req, res) => {
       const result = await menuCollection.find().toArray();
