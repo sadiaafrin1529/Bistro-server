@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const jwt = require("jsonwebtoken");
 const cors = require("cors");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -30,10 +31,28 @@ async function run() {
     const reviewsCollection = client.db("bistroDB").collection("reviews");
     const cartsCollection = client.db("bistroDB").collection("carts");
 
+    //jwt
+    //tokhn banabo
+    app.post('/jwt', async (req, res) => {
+      //playload
+      const user = req.body;//post jekhan theke dibo se khan theke user ba kono ekta information ashbe seta amra req.body theke nibo
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });//token eta
+      res.send({token})
+      //res.send({tokenn:token})//name hobe {token:token} value hobe token^(mane uporer er token ta)
+    })
 
+    //middleware for vertify token
+    const verifyToken = (req, res, next) => {
+      console.log("inside verifytoken", req.headers);
+      if (!req.headers.authorization) {
+        return res.status(401).send({message:"Forbidden access"})
+      }
+      const token = req.headers.authorization.split(' ')[1];
+      next();
+    }
 
-
-    app.get("/users", async (req, res) => {
+    app.get("/users",verifyToken, async (req, res) => {
+      // console.log(req.headers)
       const result = await usersCollection.find().toArray();
       res.send(result)
     })
