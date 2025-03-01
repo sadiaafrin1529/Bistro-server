@@ -34,7 +34,7 @@ async function run() {
     //jwt
     //tokhn banabo
     app.post('/jwt', async (req, res) => {
-      //playload
+      //payload
       const user = req.body;//post jekhan theke dibo se khan theke user ba kono ekta information ashbe seta amra req.body theke nibo
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });//token eta
       res.send({token})
@@ -48,7 +48,15 @@ async function run() {
         return res.status(401).send({message:"Forbidden access"})
       }
       const token = req.headers.authorization.split(' ')[1];
-      next();
+      //tokhn paichi ekhn verify korbo
+      jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,function(err, decoded){
+        if(err){
+          return res.status(401).send({message:"Forbidden access"})
+        }
+        req.decoded=decoded
+        next();//next ta k emn jayga theke call korbo thik thakle shamne agabe na hole shamne agabe na
+      })
+      // next();
     }
 
     app.get("/users",verifyToken, async (req, res) => {
